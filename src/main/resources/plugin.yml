@@ -1,0 +1,17 @@
+name: TeaReports
+version: '1.0-SNAPSHOT'
+description: 'Player reporting plugin'
+authors: [ 5kuper ]
+main: lol.skuper.teareports.TeaReports
+api-version: '1.13'
+
+permissions:
+  teareports.report:
+      description: '/report'
+      default: true
+
+commands:
+  report:
+    description: 'Player reporting'
+    usage: '/<command> <player> <msg>'
+    permission: teareports.report
