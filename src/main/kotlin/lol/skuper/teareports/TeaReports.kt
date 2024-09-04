@@ -1,21 +1,22 @@
 package lol.skuper.teareports
 
+import com.github.shynixn.mccoroutine.bukkit.SuspendingJavaPlugin
+import com.github.shynixn.mccoroutine.bukkit.setSuspendingExecutor
 import lol.skuper.teareports.command.ReportCommand
 import lol.skuper.teareports.repo.ReportJsonRepo
-import org.bukkit.plugin.java.JavaPlugin
 
-class TeaReports : JavaPlugin() {
+class TeaReports : SuspendingJavaPlugin() {
 
-    override fun onEnable() {
+    override suspend fun onEnableAsync() {
         if (!dataFolder.exists()) {
             dataFolder.mkdir()
         }
 
         val reportRepo = ReportJsonRepo(dataFolder)
-        getCommand(ReportCommand.NAME)?.setExecutor(ReportCommand(reportRepo))
+        getCommand(ReportCommand.NAME)?.setSuspendingExecutor(ReportCommand(reportRepo))
     }
 
-    override fun onDisable() {
+    override suspend fun onDisableAsync() {
         // Plugin shutdown logic
     }
 }

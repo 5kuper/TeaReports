@@ -1,9 +1,10 @@
 package lol.skuper.teareports.repo
 
+import kotlinx.coroutines.Job
 import lol.skuper.teareports.Report
 
 interface ReportRepo {
-    fun create(report: Report)
+    suspend fun create(report: Report)
 
-    fun getAll() : List<Report>
+    suspend fun getAll() : List<Report>
 }
