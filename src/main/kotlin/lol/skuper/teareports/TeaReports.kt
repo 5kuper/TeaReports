@@ -7,7 +7,11 @@ import org.bukkit.plugin.java.JavaPlugin
 class TeaReports : JavaPlugin() {
 
     override fun onEnable() {
-        val reportRepo = ReportJsonRepo()
+        if (!dataFolder.exists()) {
+            dataFolder.mkdir()
+        }
+
+        val reportRepo = ReportJsonRepo(dataFolder)
         getCommand(ReportCommand.NAME)?.setExecutor(ReportCommand(reportRepo))
     }
 
