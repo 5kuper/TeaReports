@@ -19,27 +19,25 @@ class ReportCommand(private val repo: ReportRepo) : SuspendingCommandExecutor, T
 
     override suspend fun onCommand(
         sender: CommandSender, command: Command, label: String, args: Array<out String>
-    ): Boolean {
-        return sender.playerOnly {
-            if (args.size < 2) return@playerOnly false
+    ): Boolean = sender.playerOnly {
+        if (args.size < 2) return@playerOnly false
 
-            val reportedPlayer = args[0]
-            if (Bukkit.getPlayer(reportedPlayer) == null) {
-                sender.sendMessage(Component.text("Player isn't found.", NamedTextColor.DARK_RED))
-                return@playerOnly true
-            }
-
-            val msgArgs = args.copyOfRange(1, args.size)
-            val reportMsg = msgArgs.joinToString(" ")
-
-            repo.create(Report(reportedPlayer, sender.name, reportMsg, Clock.System.now()))
-            sender.sendMessage(Component.text("Thank you for the report."))
+        val reportedPlayer = args[0]
+        if (Bukkit.getPlayer(reportedPlayer) == null) {
+            sender.sendMessage(Component.text("Player isn't found.", NamedTextColor.DARK_RED))
             return@playerOnly true
         }
+
+        val msgArgs = args.copyOfRange(1, args.size)
+        val reportMsg = msgArgs.joinToString(" ")
+
+        repo.create(Report(reportedPlayer, sender.name, reportMsg, Clock.System.now()))
+        sender.sendMessage(Component.text("Thank you for the report."))
+        return@playerOnly true
     }
 
     override fun onTabComplete(
-        sender: CommandSender, command: Command, alias: String, args: Array<out String>
+        sender: CommandSender, command: Command, label: String, args: Array<out String>
     ): MutableList<String>? {
         return if (args.size == 1) null else ArrayList()
     }

@@ -18,7 +18,11 @@ class ReportJsonRepo(private val folder : File) : ReportRepo {
     private val json = Json { prettyPrint = true }
 
     override suspend fun create(report: Report) {
-        val reports = getAll() + report
+        val reports = getAll().toMutableList()
+        reports += report.apply {
+            this.id = if (reports.isEmpty()) 1 else reports.last().id + 1
+        }
+
         val file = File(folder, FILENAME)
         withContext(Dispatchers.IO) {
             mutex.withLock {

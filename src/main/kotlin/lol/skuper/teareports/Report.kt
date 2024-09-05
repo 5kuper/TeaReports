@@ -9,4 +9,6 @@ data class Report(
     val reporterPlayer: String,
     val msg: String,
     val time: Instant
-)
+) {
+    var id: Int = 0
+}

@@ -7,11 +7,18 @@ api-version: '1.13'
 
 permissions:
   teareports.report:
-      description: '/report'
-      default: true
+    description: '/report'
+    default: true
+  teareports.reports:
+    description: '/reports'
+    default: false
 
 commands:
   report:
     description: 'Player reporting'
     usage: '/<command> <player> <msg>'
     permission: teareports.report
+  reports:
+    description: 'Player reporting'
+    usage: '/<command> check | /<command> answer <id> <msg>'
+    permission: teareports.reports
