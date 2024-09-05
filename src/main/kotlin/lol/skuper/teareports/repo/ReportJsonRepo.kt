@@ -1,7 +1,9 @@
 package lol.skuper.teareports.repo
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import lol.skuper.teareports.Report
@@ -13,25 +15,29 @@ class ReportJsonRepo(private val folder : File) : ReportRepo {
     }
 
     private val mutex = Mutex()
+    private val json = Json { prettyPrint = true }
 
     override suspend fun create(report: Report) {
         val reports = getAll() + report
         val file = File(folder, FILENAME)
-        mutex.withLock {
-            file.createNewFile()
-            file.writeText(Json.encodeToString(reports))
+        withContext(Dispatchers.IO) {
+            mutex.withLock {
+                file.createNewFile()
+                file.writeText(json.encodeToString(reports))
+            }
         }
     }
 
     override suspend fun getAll(): List<Report> {
         val file = File(folder, FILENAME)
-        if (file.exists()) {
-            mutex.withLock {
-                val json = file.readText()
-                return Json.decodeFromString(json)
+        return if (file.exists()) {
+            withContext(Dispatchers.IO) {
+                mutex.withLock {
+                    json.decodeFromString(file.readText())
+                }
             }
         } else {
-            return emptyList()
+            emptyList()
         }
     }
 }
