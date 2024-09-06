@@ -10,7 +10,7 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 
-class ReportsCommand(private val repo: ReportRepo) : SuspendingCommandExecutor, TabCompleter {
+class ReportsCommand(private val repo: () -> ReportRepo) : SuspendingCommandExecutor, TabCompleter {
     companion object {
         const val NAME = "reports"
     }
@@ -25,7 +25,7 @@ class ReportsCommand(private val repo: ReportRepo) : SuspendingCommandExecutor, 
         if (args.isEmpty()) return@playerOnly false
         return@playerOnly when (args[0]) {
             Subcommand.CHECK.label -> {
-                val reports = repo.getAll()
+                val reports = repo().getAll()
                 if (reports.isEmpty()) {
                     sender.sendMessage(text("Everything is fine, there are no reports.", GREEN))
                 } else {

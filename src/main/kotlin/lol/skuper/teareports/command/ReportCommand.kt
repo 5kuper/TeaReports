@@ -12,7 +12,7 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 
-class ReportCommand(private val repo: ReportRepo) : SuspendingCommandExecutor, TabCompleter {
+class ReportCommand(private val repo: () -> ReportRepo) : SuspendingCommandExecutor, TabCompleter {
    companion object {
        const val NAME = "report"
    }
@@ -31,7 +31,7 @@ class ReportCommand(private val repo: ReportRepo) : SuspendingCommandExecutor, T
         val msgArgs = args.copyOfRange(1, args.size)
         val reportMsg = msgArgs.joinToString(" ")
 
-        repo.create(Report(reportedPlayer, sender.name, reportMsg, Clock.System.now()))
+        repo().create(Report(reportedPlayer, sender.name, reportMsg, Clock.System.now()))
         sender.sendMessage(Component.text("Thank you for the report."))
         return@playerOnly true
     }

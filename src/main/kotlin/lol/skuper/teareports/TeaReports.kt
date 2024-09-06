@@ -13,15 +13,15 @@ class TeaReports : SuspendingJavaPlugin() {
             dataFolder.mkdir()
         }
 
-        val reportRepo = ReportJsonRepo(dataFolder)
+        val reportRepoProvider = { ReportJsonRepo(dataFolder) }
 
         val reportCmd = getCommand(ReportCommand.NAME)!!
-        val reportLogic = ReportCommand(reportRepo)
+        val reportLogic = ReportCommand(reportRepoProvider)
         reportCmd.setSuspendingExecutor(reportLogic)
         reportCmd.tabCompleter = reportLogic
 
         val reportsCmd = getCommand(ReportsCommand.NAME)!!
-        val reportsLogic = ReportsCommand(reportRepo)
+        val reportsLogic = ReportsCommand(reportRepoProvider)
         reportsCmd.setSuspendingExecutor(reportsLogic)
         reportsCmd.tabCompleter = reportsLogic
     }
