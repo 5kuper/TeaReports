@@ -1,9 +1,11 @@
 package lol.skuper.teareports.util
 
+import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.Sound as SoundType
 
 suspend fun CommandSender.playerOnly(commandHandler: suspend () -> Boolean): Boolean {
     if (this is Player) {
@@ -11,5 +13,12 @@ suspend fun CommandSender.playerOnly(commandHandler: suspend () -> Boolean): Boo
     } else {
         sendMessage(Component.text("The command can only be used by a player.", NamedTextColor.DARK_RED))
         return true
+    }
+}
+
+fun Player.notify(msg: Component) {
+    if (isOnline) {
+        sendMessage(msg)
+        playSound(Sound.sound(SoundType.ENTITY_PLAYER_LEVELUP, Sound.Source.MASTER, 1f, 1f))
     }
 }

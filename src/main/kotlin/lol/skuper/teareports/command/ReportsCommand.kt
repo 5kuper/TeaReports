@@ -4,10 +4,12 @@ import com.github.shynixn.mccoroutine.bukkit.SuspendingCommandExecutor
 import kotlinx.datetime.Clock
 import lol.skuper.teareports.Report
 import lol.skuper.teareports.repo.ReportRepo
+import lol.skuper.teareports.util.notify
 import lol.skuper.teareports.util.playerOnly
 import net.kyori.adventure.text.Component.newline
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.*
+import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
@@ -61,6 +63,10 @@ class ReportsCommand(private val repoProvider: () -> ReportRepo) : SuspendingCom
                         report.answer = Report.Answer(answerMsg, sender.name, Clock.System.now())
                         repo.update(report)
                         sender.sendMessage(text("You answered the #${reportId} report."))
+
+                        val reporter = Bukkit.getPlayer(report.reporterPlayer)
+                        reporter?.notify(text("There is an answer" +
+                                " to your report about ${report.reportedPlayer}: ${report.answer!!.msg}"))
                     }
                     true
                 }
