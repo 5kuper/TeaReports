@@ -1,6 +1,8 @@
 package lol.skuper.teareports.command
 
 import com.github.shynixn.mccoroutine.bukkit.SuspendingCommandExecutor
+import kotlinx.datetime.Clock
+import lol.skuper.teareports.Report
 import lol.skuper.teareports.repo.ReportRepo
 import lol.skuper.teareports.util.playerOnly
 import net.kyori.adventure.text.Component.newline
@@ -9,8 +11,9 @@ import net.kyori.adventure.text.format.NamedTextColor.*
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
+import java.lang.IllegalStateException
 
-class ReportsCommand(private val repo: () -> ReportRepo) : SuspendingCommandExecutor, TabCompleter {
+class ReportsCommand(private val repoProvider: () -> ReportRepo) : SuspendingCommandExecutor, TabCompleter {
     companion object {
         const val NAME = "reports"
     }
@@ -23,13 +26,14 @@ class ReportsCommand(private val repo: () -> ReportRepo) : SuspendingCommandExec
         sender: CommandSender, command: Command, label: String, args: Array<out String>
     ): Boolean = sender.playerOnly {
         if (args.isEmpty()) return@playerOnly false
+
         return@playerOnly when (args[0]) {
             Subcommand.CHECK.label -> {
-                val reports = repo().getAll()
+                val reports = repoProvider().getAll().filter { it.answer == null }
                 if (reports.isEmpty()) {
                     sender.sendMessage(text("Everything is fine, there are no reports.", GREEN))
                 } else {
-                    var component = text("Reports: ", DARK_AQUA)
+                    var component = text("Pending reports: ", DARK_AQUA)
                     reports.forEach {
                         component = component.append(newline())
                             .append(text("#${it.id} ", AQUA)).append(text(it.reportedPlayer, RED))
@@ -41,9 +45,23 @@ class ReportsCommand(private val repo: () -> ReportRepo) : SuspendingCommandExec
                 true
             }
             Subcommand.ANSWER.label -> {
-                if (args.size < 3) {
-                    false
-                } else {
+                if (args.size < 3) false
+                else {
+                    val repo = repoProvider()
+
+                    val reportId = args[1].toIntOrNull() ?: return@playerOnly false
+                    val report = repo.getById(reportId) ?: throw IllegalStateException("Report isn't found.")
+
+                    if (report.answer != null) {
+                        sender.sendMessage(text("Report #${reportId} already has an answer."))
+                    } else {
+                        val msgArgs = args.copyOfRange(2, args.size)
+                        val answerMsg = msgArgs.joinToString(" ")
+
+                        report.answer = Report.Answer(answerMsg, sender.name, Clock.System.now())
+                        repo.update(report)
+                        sender.sendMessage(text("You answered the #${reportId} report."))
+                    }
                     true
                 }
             }

@@ -10,5 +10,9 @@ data class Report(
     val msg: String,
     val time: Instant
 ) {
-    var id: Int = 0
+    @Serializable
+    data class Answer(val msg: String, val player: String, val time: Instant)
+
+    var id = 0
+    var answer: Answer? = null
 }
