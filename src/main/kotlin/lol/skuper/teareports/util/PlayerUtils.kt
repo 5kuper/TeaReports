@@ -1,11 +1,12 @@
 package lol.skuper.teareports.util
 
+import kotlinx.serialization.Serializable
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.Sound as SoundType
 
 suspend fun CommandSender.playerOnly(commandHandler: suspend () -> Boolean): Boolean {
     if (this is Player) {
@@ -16,9 +17,14 @@ suspend fun CommandSender.playerOnly(commandHandler: suspend () -> Boolean): Boo
     }
 }
 
-fun Player.notify(msg: Component) {
+@Serializable
+data class SoundInfo(val key: String, val pitch: Float = 1f)
+
+fun Player.notify(msg: Component, sound: SoundInfo?) {
     if (isOnline) {
         sendMessage(msg)
-        playSound(Sound.sound(SoundType.ENTITY_PLAYER_LEVELUP, Sound.Source.MASTER, 1f, 1f))
+        sound?.run {
+            playSound(Sound.sound(Sound.Type { Key.key(key) }, Sound.Source.MASTER, 1f, pitch))
+        }
     }
 }

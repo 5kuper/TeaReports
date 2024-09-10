@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "lol.skuper"
-version = "1.0"
+version = "1.1"
 
 repositories {
     mavenCentral()
@@ -20,11 +20,14 @@ repositories {
 dependencies {
     compileOnly("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
     shadow("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2")
     implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-api:2.19.0")
     implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-core:2.19.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+    implementation("com.charleskorn.kaml:kaml:0.61.0")
 }
 
 val targetJavaVersion = 17

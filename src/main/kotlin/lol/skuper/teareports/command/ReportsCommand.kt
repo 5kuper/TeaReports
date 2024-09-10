@@ -2,23 +2,37 @@ package lol.skuper.teareports.command
 
 import com.github.shynixn.mccoroutine.bukkit.SuspendingCommandExecutor
 import kotlinx.datetime.Clock
+import kotlinx.serialization.Serializable
 import lol.skuper.teareports.Report
 import lol.skuper.teareports.repo.ReportRepo
+import lol.skuper.teareports.util.SoundInfo
 import lol.skuper.teareports.util.notify
 import lol.skuper.teareports.util.playerOnly
 import net.kyori.adventure.text.Component.newline
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.*
 import org.bukkit.Bukkit
+import org.bukkit.Sound
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
-import java.lang.IllegalStateException
 
-class ReportsCommand(private val repoProvider: () -> ReportRepo) : SuspendingCommandExecutor, TabCompleter {
+class ReportsCommand(private val opt: Options, private val repoProvider: () -> ReportRepo)
+        : SuspendingCommandExecutor, TabCompleter {
+
     companion object {
         const val NAME = "reports"
     }
+
+    @Serializable
+    data class Options(
+        val answerMessagePlaceholders: List<String> = listOf(
+            "Thank you!", "Not enough info."
+        ),
+
+        val enableAnswerNotificationSound: Boolean = true,
+        val answerNotificationSound: SoundInfo? = SoundInfo(Sound.ENTITY_PLAYER_LEVELUP.key.value(), 1f)
+    )
 
     enum class Subcommand(val label: String) {
         CHECK("check"), ANSWER("answer")
@@ -65,8 +79,10 @@ class ReportsCommand(private val repoProvider: () -> ReportRepo) : SuspendingCom
                         sender.sendMessage(text("You answered the #${reportId} report."))
 
                         val reporter = Bukkit.getPlayer(report.reporterPlayer)
-                        reporter?.notify(text("There is an answer" +
-                                " to your report about ${report.reportedPlayer}: ${report.answer!!.msg}"))
+                        val sound = if (opt.enableAnswerNotificationSound) opt.answerNotificationSound else null
+
+                        reporter?.notify(text("There's an answer to your report" +
+                            " about ${report.reportedPlayer}: ${report.answer!!.msg}"), sound)
                     }
                     true
                 }
@@ -80,8 +96,10 @@ class ReportsCommand(private val repoProvider: () -> ReportRepo) : SuspendingCom
     ): MutableList<String> {
         return if (args.size == 1) {
             Subcommand.entries.map { it.label }.toMutableList()
-        } else {
-            ArrayList()
         }
+        else if (args.size == 3 && args[0] == Subcommand.ANSWER.label) {
+            opt.answerMessagePlaceholders.toMutableList()
+        }
+        else ArrayList()
     }
 }
